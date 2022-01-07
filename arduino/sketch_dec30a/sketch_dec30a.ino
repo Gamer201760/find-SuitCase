@@ -29,9 +29,13 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
+<<<<<<< HEAD
 
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+=======
+  Serial.println("Wifi Connected");
+>>>>>>> 2ff8efe85ced4f2860faddc0d0b709ab8bf37f69
   SPI.begin();
   mfrc522.PCD_Init();
   
