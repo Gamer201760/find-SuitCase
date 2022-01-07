@@ -110,7 +110,7 @@ def upload():
     print(ser.readline())
     ser.close()
 
-    return 'Img Uploaded!', 200
+    return 'Write Done', 200
 @app.route('/status/<id>/<status>')
 def status(id, status):
     m = SuitCase.query.all()
