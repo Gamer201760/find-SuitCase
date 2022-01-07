@@ -30,12 +30,21 @@ void setup() {
     Serial.print(".");
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 =======
   Serial.println("Wifi Connected");
 >>>>>>> 2ff8efe85ced4f2860faddc0d0b709ab8bf37f69
+=======
+  Serial.println("Wifi Connected");
+=======
+
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+>>>>>>> 1d9bedb38831463893022897e261a073d457f786
+>>>>>>> 80f80d40b079bebd16dee8dab52e7ec54f800e26
   SPI.begin();
   mfrc522.PCD_Init();
   

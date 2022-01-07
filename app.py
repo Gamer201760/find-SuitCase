@@ -110,6 +110,7 @@ def upload():
     print(ser.readline())
     ser.close()
 
+
     return 'Write Done', 200
 @app.route('/status/<id>/<status>')
 def status(id, status):
