@@ -20,6 +20,7 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
+  Serial.println("Wifi Connected");
   SPI.begin();
   mfrc522.PCD_Init();
 }

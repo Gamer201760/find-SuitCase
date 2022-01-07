@@ -22,7 +22,7 @@ class SuitCase(db.Model):
 
     #data
     # weight = db.Column(db.Float)
-    status = db.Column(db.Text, nullable=False)
+    status = db.Column(db.Integer, nullable=False)
     first_name = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False)
     flight = db.Column(db.Text, nullable=False)
@@ -98,11 +98,11 @@ def upload():
     rrandom = ''.join([random.choice(string.ascii_letters
             + string.digits) for n in range(16)])
 
-    img = SuitCase(first_img=pic1.read(),second_img=pic2.read(),third_img=pic3.read(),fourth_img=pic4.read(), first_img_name=filename1, first_img_mimetype=mimetype1, second_img_name=filename2, second_img_mimetype=mimetype2, third_img_name=filename3, third_img_mimetype=mimetype3, fourth_img_name=filename4, fourth_img_mimetype=mimetype4, status="Прошёл Регистрацию", first_name=fname, name=name, flight=flight, uid=rrandom)
+    img = SuitCase(first_img=pic1.read(),second_img=pic2.read(),third_img=pic3.read(),fourth_img=pic4.read(), first_img_name=filename1, first_img_mimetype=mimetype1, second_img_name=filename2, second_img_mimetype=mimetype2, third_img_name=filename3, third_img_mimetype=mimetype3, fourth_img_name=filename4, fourth_img_mimetype=mimetype4, status=1, first_name=fname, name=name, flight=flight, uid=rrandom)
     db.session.add(img)
     db.session.commit()
     
-    ser = serial.Serial("com7", 9600, timeout=5)
+    ser = serial.Serial("com5", 9600, timeout=5)
     time.sleep(1)
     ser.setDTR(0)
     time.sleep(1)
@@ -111,7 +111,7 @@ def upload():
     ser.close()
 
     return 'Img Uploaded!', 200
-@app.route('/status/<id>/<status>')
+@app.route('/status/<id>/<int:status>')
 def status(id, status):
     m = SuitCase.query.all()
     print(m)
@@ -122,7 +122,7 @@ def status(id, status):
             db.session.flush()
             db.session.commit()
     return "write is done"
-@app.route("/getphoto/<num>/<id>")
+@app.route("/getphoto/<int:num>/<id>")
 def getphoto(num, id):
     
     data = db.session.execute(select(SuitCase).where(SuitCase.uid == id)).scalar_one()
@@ -136,4 +136,4 @@ def getphoto(num, id):
         case 4: return Response(data.fourth_img, mimetype=data.fourth_img_mimetype)
 
 if __name__ == "__main__":
-    app.run(host="192.168.0.101", port=80)
+    app.run(host="0.0.0.0", port=80)
