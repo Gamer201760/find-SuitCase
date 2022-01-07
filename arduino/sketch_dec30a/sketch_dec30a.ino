@@ -1,6 +1,8 @@
 #include <MFRC522.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include "index.h"
 
 String ip = "http://192.168.0.101/";
 
@@ -10,6 +12,13 @@ String ip = "http://192.168.0.101/";
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 MFRC522::MIFARE_Key key;
 MFRC522::StatusCode status;
+ESP8266WebServer server(80);
+
+void handleRoot() {
+  String s = MAIN_page; //Read HTML contents
+  server.send(200, "text/html", s); //Send web page
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -20,15 +29,26 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
+<<<<<<< HEAD
   Serial.println("Wifi Connected");
+=======
+
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+>>>>>>> 1d9bedb38831463893022897e261a073d457f786
   SPI.begin();
   mfrc522.PCD_Init();
+  
+  server.on("/", handleRoot);      //Which routine to handle at root location
+
+  server.begin();                  //Start server
+  Serial.println("HTTP server started");
 }
 
 void loop() {
   WiFiClient client;
   HTTPClient http;
-
+  server.handleClient();   
   for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
 
   byte block;
