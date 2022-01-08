@@ -1,0 +1,31 @@
+body{
+    background-color: rgb(174, 0, 255);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 20px;
+    
+}
+.info {
+    transition: 200ms;
+    font-size: 16px;
+    padding: 10px;
+    display: flex;
+    margin: 10px;
+    justify-content: space-around;
+    width: 300px;
+    border: 100px;
+    border-radius: 10rem;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .info:hover{
+    /* font-size: 26px;
+    padding: 10px;
+    display: block;
+    width: 320px;
+    border-radius: 10rem;
+    border-bottom: 1px solid #ccc;  */
+    opacity: 0.9;
+  }

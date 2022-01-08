@@ -110,7 +110,7 @@ def upload():
     db.session.add(img)
     db.session.commit()
     print(rrandom)
-    ser = serial.Serial("com4", 9600, timeout=5)
+    ser = serial.Serial("com5", 9600, timeout=5)
     time.sleep(1)
     ser.setDTR(0)
     time.sleep(1)
