@@ -1,6 +1,8 @@
 import requests
 import cv2 as cv
 import eel
+import serial
+import time
 
 @eel.expose()
 def make_photo():
@@ -8,12 +10,12 @@ def make_photo():
     cap = cv.VideoCapture(0)
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
-
+    
 
     while True:
-        k= cv.waitKey(0)
+        k= cv.waitKey(1)
         value, frame = cap.read()
-        cv.imshow("Bafg", frame)
+        cv.imshow("Bag", frame)
 
         if k == ord('p'):
             if key <= 4:
@@ -45,7 +47,14 @@ def send(name, fname, flight):
     }
     
     code=requests.post('http://192.168.0.101/upload', files=files, data=data)   
-    print(code)
+    print(code.text)
+    ser = serial.Serial("com5", 9600, timeout=5)
+    time.sleep(1)
+    ser.setDTR(0)
+    time.sleep(1)
+    ser.write(code.text.encode())
+    print(ser.readline())
+    ser.close()
 
 eel.init("web")
 eel.start("index.html", size=(500,500))

@@ -110,16 +110,8 @@ def upload():
     db.session.add(img)
     db.session.commit()
     print(rrandom)
-    ser = serial.Serial("com5", 9600, timeout=5)
-    time.sleep(1)
-    ser.setDTR(0)
-    time.sleep(1)
-    ser.write(rrandom.encode())
-    print(ser.readline())
-    ser.close()
-
-
-    return 'Write Done', 200
+    
+    return rrandom, 200
 @app.route('/status/<id>/<status>')
 def status(id, status):
     m = SuitCase.query.all()
