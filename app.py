@@ -2,11 +2,14 @@ from flask import Flask,request, Response
 import string
 import random
 import time
+import requests
 import serial
+import json
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm.sync import update
 from sqlalchemy.sql.expression import select
+from werkzeug.wrappers import response
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/postgres'
@@ -54,10 +57,15 @@ def hello_world():
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    print(request.files)
 
     name = request.form["name"]
     fname = request.form["f_name"]
     flight = request.form["flight"]
+
+    print(name)
+    print(fname)
+    print(flight)
 
     pic1 = request.files['pic1']
     pic2 = request.files['pic2']
@@ -101,8 +109,8 @@ def upload():
     img = SuitCase(first_img=pic1.read(),second_img=pic2.read(),third_img=pic3.read(),fourth_img=pic4.read(), first_img_name=filename1, first_img_mimetype=mimetype1, second_img_name=filename2, second_img_mimetype=mimetype2, third_img_name=filename3, third_img_mimetype=mimetype3, fourth_img_name=filename4, fourth_img_mimetype=mimetype4, status=1, first_name=fname, name=name, flight=flight, uid=rrandom)
     db.session.add(img)
     db.session.commit()
-    
-    ser = serial.Serial("com5", 9600, timeout=5)
+    print(rrandom)
+    ser = serial.Serial("com4", 9600, timeout=5)
     time.sleep(1)
     ser.setDTR(0)
     time.sleep(1)
@@ -135,6 +143,19 @@ def getphoto(num, id):
         case 2: return Response(data.second_img, mimetype=data.second_img_mimetype)
         case 3: return Response(data.third_img, mimetype=data.third_img_mimetype)
         case 4: return Response(data.fourth_img, mimetype=data.fourth_img_mimetype)
-
+@app.route("/getdata/<id>")
+def getdata(id):
+    
+    data = db.session.execute(select(SuitCase).where(SuitCase.uid == id)).scalar_one()
+    data_json = {
+        "name": data.name,
+        "first_name": data.first_name,
+        "flight": data.flight,
+        "status": data.status,
+    }
+    db.session.flush()
+    db.session.commit()
+    
+    return json.dumps(data_json) 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
