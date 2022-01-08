@@ -47,13 +47,16 @@ def send(name, fname, flight):
     }
     
     code=requests.post('http://192.168.0.101/upload', files=files, data=data)   
-    print(code.text)
+    id = code.text
+    print(id)
     ser = serial.Serial("com5", 9600, timeout=5)
-    time.sleep(1)
+    time.sleep(2)
     ser.setDTR(0)
-    time.sleep(1)
-    ser.write(code.text.encode())
-    print(ser.readline())
+    time.sleep(2)
+    ser.write(id.encode())
+    statuscode = ser.readline()
+    print(str(statuscode)[:-5][-3:])
+    eel.statuscode(f"Status Code {str(statuscode)[:-5][-3:]}")
     ser.close()
 
 eel.init("web")

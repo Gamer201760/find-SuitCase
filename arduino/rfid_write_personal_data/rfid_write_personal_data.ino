@@ -72,7 +72,7 @@ void loop() {
     Serial.println(mfrc522.GetStatusCodeName(status));
     return;
   }
-  else Serial.println(F("MIFARE_Write() success: "));
+  else Serial.println(F("200"));
 
 
   mfrc522.PICC_HaltA(); 
