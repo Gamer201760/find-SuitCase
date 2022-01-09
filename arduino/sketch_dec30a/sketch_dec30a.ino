@@ -1,3 +1,4 @@
+
 #include <ArduinoJson.h>
 #include <MFRC522.h>
 #include <ESP8266HTTPClient.h>
@@ -17,32 +18,38 @@ const char* flight;
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 MFRC522::StatusCode status;
+
+byte buffer[18];
+byte size = sizeof(buffer);
+
+uint8_t pageAddr = 0x06;
+
 ESP8266WebServer server(80);
 
 void handleRoot() {
 
   server.send(200, "text/html", SendHTML(value, nam, f_name, stat, flight)); //Send web page
 }
-String SendHTML(String id,String nam,String f_name, int stat, String flight) {
+String SendHTML(String id, String nam, String f_name, int stat, String flight) {
 
   String ptr = "<!DOCTYPE html> <html>";
   ptr += "<head> <meta charset=\"UTF-8\"> <title>Find-SuitCase</title>";
-  ptr +="<style>html { font-family: Helvetica; display: inline-block; margin: 10px auto; text-align: center;}\n";
-  ptr +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;}\n";
-  ptr +=".user_data {font-size: 24px;color: #444444;margin-bottom: 10px;}\n";
-  ptr +=".im {transition: 200ms;padding: 10px; width:300px; height:300px;}\n";
-  ptr +=".im:hover {padding: 10px; width:330px; height:330px;}\n";
-  ptr +="</style>";
+  ptr += "<style>html { font-family: Helvetica; display: inline-block; margin: 10px auto; text-align: center;}\n";
+  ptr += "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;}\n";
+  ptr += ".user_data {font-size: 24px;color: #444444;margin-bottom: 10px;}\n";
+  ptr += ".im {transition: 200ms;padding: 10px; width:300px; height:300px;}\n";
+  ptr += ".im:hover {padding: 10px; width:330px; height:330px;}\n";
+  ptr += "</style>";
 
-  ptr +=" </head>";
- 
+  ptr += " </head>";
+
   ptr += "<body>";
 
   ptr += "<div class=\"user_data\">\n";
 
   ptr += "<p>Name:" + nam + "</p>";
-  ptr += "<p>First Name: "+f_name+"</p>";
-  ptr += "<p>Status Code: "+String(stat);"+</p>";
+  ptr += "<p>First Name: " + f_name + "</p>";
+  ptr += "<p>Status Code: " + String(stat); "+</p>";
   ptr += "<p>Flight: " + flight + "</p>";
 
   ptr += "</div>";
@@ -89,51 +96,44 @@ void loop() {
   byte block;
   byte len;
 
-  if ( ! mfrc522.PICC_IsNewCardPresent()) {
+  if ( ! mfrc522.PICC_IsNewCardPresent())
     return;
-  }
 
-  if ( ! mfrc522.PICC_ReadCardSerial()) {
+  if ( ! mfrc522.PICC_ReadCardSerial())
     return;
-  }
-  byte PSWBuff[] = {0xFF, 0xFF, 0xFF, 0xFF}; // 32 bit password default FFFFFFFF.
-  byte pACK[] = {0, 0};
 
-  Serial.println(F("**Card Detected:**"));
 
-  byte buffer1[18];
-
-  block = 4;
-  len = 18;
-
-  status = mfrc522.PCD_NTAG216_AUTH(&PSWBuff[0], pACK); // Request authentification if return STATUS_OK we are good.
+  StaticJsonDocument<200> jdata;
+  Serial.println(F("Reading data ... "));
+  //data in 4 block is readed at once.
+  status = (MFRC522::StatusCode) mfrc522.MIFARE_Read(pageAddr, buffer, &size);
   if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Authentication failed: "));
+    Serial.print(F("MIFARE_Read() failed: "));
     Serial.println(mfrc522.GetStatusCodeName(status));
     return;
-  }
-
-  status = mfrc522.MIFARE_Read(block, buffer1, &len);
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Reading failed: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    return;
-  }
-  else {
+  } else {
     value = "";
     nam = "";
     f_name = "";
     stat = 0;
     flight = "";
   }
-  StaticJsonDocument<200> jdata;
-
-  for (uint8_t i = 0; i < 16; i++)
-  {
-    value += (char)buffer1[i];
+  Serial.print(F("Readed data: "));
+  //Dump a byte array to Serial
+  for (byte i = 0; i < 16; i++) {
+   Serial.write(buffer[i]);
+   value += (char)buffer[i];
   }
-  //  value.trim();
+  Serial.print("Id: ");
   Serial.println(value);
+
+
+//  for (uint8_t i = 0; i < 16; i++)
+//  {
+//    value += (char)buffer[i];
+//  }
+  //  value.trim();
+  
 
   String httpRequestData = ip + "status/" + value + "/2";
   String httpip = ip + "getdata/" + value;
@@ -162,8 +162,7 @@ void loop() {
   Serial.println(httpcode);
   Serial.println(F("\n**End Reading**\n"));
 
-  delay(1000);
+  delay(100);
 
   mfrc522.PICC_HaltA();
-  mfrc522.PCD_StopCrypto1();
 }
