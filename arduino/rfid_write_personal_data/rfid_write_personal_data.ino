@@ -38,9 +38,6 @@ void setup() {
 
 void loop() {
 
-  MFRC522::MIFARE_Key key;
-  for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
-
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
     return;
   }
@@ -48,6 +45,8 @@ void loop() {
   if ( ! mfrc522.PICC_ReadCardSerial()) {
     return;
   }
+  byte PSWBuff[] = {0xFF, 0xFF, 0xFF, 0xFF}; // 32 bit password default FFFFFFFF.
+  byte pACK[] = {0, 0};
 
   byte buffer[16];
   byte block;
@@ -59,7 +58,8 @@ void loop() {
 
   block = 4;
 
-  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
+  status = mfrc522.PCD_NTAG216_AUTH(&PSWBuff[0], pACK); // Request authentification if return STATUS_OK we are good.
+
   if (status != MFRC522::STATUS_OK) {
     Serial.print(F("PCD_Authenticate() failed: "));
     Serial.println(mfrc522.GetStatusCodeName(status));

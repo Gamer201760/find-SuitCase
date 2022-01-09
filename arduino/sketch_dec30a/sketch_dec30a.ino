@@ -16,7 +16,6 @@ int stat;
 const char* flight;
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
-MFRC522::MIFARE_Key key;
 MFRC522::StatusCode status;
 ESP8266WebServer server(80);
 
@@ -86,7 +85,6 @@ void loop() {
   WiFiClient client;
   HTTPClient http;
   server.handleClient();
-  for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
 
   byte block;
   byte len;
@@ -98,6 +96,8 @@ void loop() {
   if ( ! mfrc522.PICC_ReadCardSerial()) {
     return;
   }
+  byte PSWBuff[] = {0xFF, 0xFF, 0xFF, 0xFF}; // 32 bit password default FFFFFFFF.
+  byte pACK[] = {0, 0};
 
   Serial.println(F("**Card Detected:**"));
 
@@ -106,7 +106,7 @@ void loop() {
   block = 4;
   len = 18;
 
-  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(mfrc522.uid));
+  status = mfrc522.PCD_NTAG216_AUTH(&PSWBuff[0], pACK); // Request authentification if return STATUS_OK we are good.
   if (status != MFRC522::STATUS_OK) {
     Serial.print(F("Authentication failed: "));
     Serial.println(mfrc522.GetStatusCodeName(status));
