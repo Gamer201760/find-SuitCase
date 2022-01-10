@@ -37,8 +37,8 @@ String SendHTML(String id, String nam, String f_name, int stat, String flight) {
   ptr += "<style>html { font-family: Helvetica; display: inline-block; margin: 10px auto; text-align: center;}\n";
   ptr += "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;}\n";
   ptr += ".user_data {font-size: 24px;color: #444444;margin-bottom: 10px;}\n";
-  ptr += ".im {transition: 200ms;padding: 10px; width:300px; height:300px;}\n";
-  ptr += ".im:hover {padding: 10px; width:330px; height:330px;}\n";
+  ptr += ".im {transition: 200ms;padding: 10px; width:320px; height:240px;}\n";
+  ptr += ".im:hover {padding: 10px; width:350px; height:270px;}\n";
   ptr += "</style>";
 
   ptr += " </head>";
