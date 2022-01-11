@@ -1,14 +1,15 @@
 function myFunction(){
+    
     let name = document.getElementById("name").value;
-    let fname = document.getElementById("fname").value;
+    let suraname = document.getElementById("surname").value;
     let flight = document.getElementById("flight").value;
+    let pat = document.getElementById("patronymics").value;
+    let weight = document.getElementById("weight").value;
+    console.log(name, suraname, flight, pat, weight);
 
-    eel.send(name,fname,flight);
+    eel.send(name,suraname,flight,pat,weight);
 }
-function mekaphoto(){
-    eel.make_photo();
-}
+function mekaphoto(){eel.make_photo();}
+
 eel.expose(statuscode);
-function statuscode(data) {
-    alert(data)
-}
+function statuscode(data) {alert(data)}
