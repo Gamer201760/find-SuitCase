@@ -142,6 +142,10 @@ void loop() {
   http.addHeader("Content-Type", "text/html");
   int httpcode = http.GET();
   Serial.println(httpcode);
+  if (httpcode != 200){
+    Serial.println(F("\n**End Reading**\n"));
+    return;
+  }
 
   http.begin(client, httpip);
   http.addHeader("Content-Type", "application/json");

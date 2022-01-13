@@ -1,15 +1,10 @@
 from flask import Flask, request, Response
 import string
 import random
-import time
-import requests
-import serial
 import json
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
-from sqlalchemy.orm.sync import update
 from sqlalchemy.sql.expression import select
-from werkzeug.wrappers import response
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/postgres'
@@ -22,7 +17,7 @@ db = SQLAlchemy(app)
 class SuitCase(db.Model):
     # id
     id = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.Text(16), unique=True, nullable=False)
+    uid = db.Column(db.String(16), unique=True, nullable=False)
 
     # data
     weight = db.Column(db.Float)

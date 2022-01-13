@@ -8,7 +8,7 @@ import time
 @eel.expose()
 def make_photo():
     key = 1
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(1)
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
 
