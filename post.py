@@ -49,7 +49,8 @@ def send(name, surname, flight, pat, weight):
         "weight": weight
     }
 
-    code = requests.post('http://192.168.0.101/upload', files=files, data=data)
+    code = requests.post(
+        'https://find-suitcase.herokuapp.com/upload', files=files, data=data)
     id = code.text
     print(id)
     ser = serial.Serial("com7", 9600, timeout=5)

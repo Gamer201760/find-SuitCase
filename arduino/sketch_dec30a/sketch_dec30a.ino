@@ -5,14 +5,16 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-String ip = "http://192.168.0.101/";
+String ip = "http://find-suitcase.herokuapp.com/";
 
 #define RST_PIN         D0
 #define SS_PIN          D8
 String value;
 
 const char* nam;
-const char* f_name;
+const char* surname;
+const char* pat;
+float weight;
 int stat;
 const char* flight;
 
@@ -28,9 +30,10 @@ ESP8266WebServer server(80);
 
 void handleRoot() {
 
-  server.send(200, "text/html", SendHTML(value, nam, f_name, stat, flight)); //Send web page
+  server.send(200, "text/html", SendHTML(value, nam, surname, pat, weight, stat, flight)); //Send web page
 }
-String SendHTML(String id, String nam, String f_name, int stat, String flight) {
+
+String SendHTML(String id, String nam, String surname, String pat, float weight, int stat, String flight) {
 
   String ptr = "<!DOCTYPE html> <html>";
   ptr += "<head> <meta charset=\"UTF-8\"> <title>Find-SuitCase</title>";
@@ -48,17 +51,20 @@ String SendHTML(String id, String nam, String f_name, int stat, String flight) {
   ptr += "<div class=\"user_data\">\n";
 
   ptr += "<p>Name:" + nam + "</p>";
-  ptr += "<p>First Name: " + f_name + "</p>";
+  ptr += "<p>Surname: " + surname + "</p>";
+  ptr += "<p>Patronymics: " + pat + "</p>";
+  ptr += "<p>Weight: " + String(weight) + "</p>";
   ptr += "<p>Status Code: " + String(stat); "+</p>";
   ptr += "<p>Flight: " + flight + "</p>";
 
   ptr += "</div>";
-  for (int i; i <= 4; i++) {
-    String ip = "http://192.168.0.101/getphoto/";
-    ip += i;
-    ip += "/";
-    ip += id;
-    ptr += "<img src=" + ip + " class=\"im\">";
+  for (int i=1; i <=4; i++) {
+    String ipimg = ip + "getphoto/";
+    Serial.println(i);
+    ipimg += i;
+    ipimg += "/";
+    ipimg += id;
+    ptr += "<img src=" + ipimg+ " class=\"im\">";
   }
 
 
@@ -77,7 +83,7 @@ void setup() {
     Serial.print(".");
   }
 
-  Serial.print("IP address: ");
+  Serial.print("[INFO] IP: ");
   Serial.println(WiFi.localIP());
   SPI.begin();
   mfrc522.PCD_Init();
@@ -85,7 +91,7 @@ void setup() {
   server.on("/", handleRoot);      //Which routine to handle at root location
 
   server.begin();                  //Start server
-  Serial.println("HTTP server started");
+  Serial.println("[INFP] HTTP server started");
 }
 
 void loop() {
@@ -104,36 +110,37 @@ void loop() {
 
 
   StaticJsonDocument<200> jdata;
-  Serial.println(F("Reading data ... "));
+  Serial.println("[INFO] Reading data ... ");
   //data in 4 block is readed at once.
   status = (MFRC522::StatusCode) mfrc522.MIFARE_Read(pageAddr, buffer, &size);
   if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("MIFARE_Read() failed: "));
+    Serial.print("[ERROR] MIFARE_Read() failed: ");
     Serial.println(mfrc522.GetStatusCodeName(status));
     return;
   } else {
     value = "";
+
     nam = "";
-    f_name = "";
+    surname = "";
+    pat = "";
+    weight = 0.0;
     stat = 0;
     flight = "";
   }
-  Serial.print(F("Readed data: "));
   //Dump a byte array to Serial
   for (byte i = 0; i < 16; i++) {
-   Serial.write(buffer[i]);
-   value += (char)buffer[i];
+    value += (char)buffer[i];
   }
-  Serial.print("Id: ");
+  Serial.print("[INFO] ID: ");
   Serial.println(value);
 
 
-//  for (uint8_t i = 0; i < 16; i++)
-//  {
-//    value += (char)buffer[i];
-//  }
+  //  for (uint8_t i = 0; i < 16; i++)
+  //  {
+  //    value += (char)buffer[i];
+  //  }
   //  value.trim();
-  
+
 
   String httpRequestData = ip + "status/" + value + "/2";
   String httpip = ip + "getdata/" + value;
@@ -141,9 +148,10 @@ void loop() {
   http.begin(client, httpRequestData);
   http.addHeader("Content-Type", "text/html");
   int httpcode = http.GET();
+  Serial.print("[INFO] HttpCode: ");
   Serial.println(httpcode);
-  if (httpcode != 200){
-    Serial.println(F("\n**End Reading**\n"));
+  if (httpcode != 200) {
+    Serial.println("[INFO] End Reading");
     return;
   }
 
@@ -154,17 +162,28 @@ void loop() {
   deserializeJson(jdata, payload);
 
   nam = jdata["name"];
-  f_name = jdata["first_name"];
+  surname = jdata["surname"];
+  pat = jdata["patronymics"];
+  weight = jdata["weight"];
   flight = jdata["flight"];
   stat = jdata["status"];
 
+  Serial.print("[INFO] Name: ");
   Serial.println(nam);
-  Serial.println(f_name);
+  Serial.print("[INFO] Surname: ");
+  Serial.println(surname);
+  Serial.print("[INFO] Patronymics: ");
+  Serial.println(pat);
+  Serial.print("[INFO] Weight: ");
+  Serial.println(weight);
+  Serial.print("[INFO] Flight: ");
   Serial.println(flight);
+  Serial.print("[INFO] Status Code: ");
   Serial.println(stat);
 
+  Serial.print("[INFO] HttpCode: ");
   Serial.println(httpcode);
-  Serial.println(F("\n**End Reading**\n"));
+  Serial.println("[INFO] End Reading");
 
   delay(100);
 
