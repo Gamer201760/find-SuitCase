@@ -1,20 +1,14 @@
-import cv2 as cv
-key = 1
-cap = cv.VideoCapture()
-cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
-cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
+import json
+import requests
 
-while True:
-    k = cv.waitKey(1)
-    value, frame = cap.read()
-    cv.imshow("Bag", frame)
+url = 'http://ipinfo.io/json'
+response = requests(url)
+data = json.load(response)
 
-    if k == ord('p'):
-        if key <= 4:
-            print(f"photo{key}")
-            cv.imwrite(f'photo/bag{key}.png', frame)
-            key += 1
-        else:
-            break
-cap.release()
-cv.destroyAllWindows()
+IP = data['ip']
+org = data['org']
+city = data['city']
+country = data['country']
+region = data['region']
+
+print(f"{IP} {city}")

@@ -1,3 +1,4 @@
+from calendar import c
 from flask import Flask, request, Response
 import string
 import random
@@ -26,22 +27,26 @@ class SuitCase(db.Model):
     name = db.Column(db.Text, nullable=False)
     patronymics = db.Column(db.Text, nullable=False)
     flight = db.Column(db.Text, nullable=False)
+    city = db.Column(db.Text, unique=True, nullable=False)
 
     # img
     first_img = db.Column(db.TEXT,  nullable=False)
     second_img = db.Column(db.Text, nullable=False)
     third_img = db.Column(db.Text, nullable=False)
     fourth_img = db.Column(db.Text,  nullable=False)
+    face_img = db.Column(db.Text,  nullable=False)
 
     first_img_name = db.Column(db.TEXT, nullable=False)
     second_img_name = db.Column(db.Text, nullable=False)
     third_img_name = db.Column(db.Text, nullable=False)
     fourth_img_name = db.Column(db.Text, nullable=False)
+    face_img_name = db.Column(db.Text,  nullable=False)
 
     first_img_mimetype = db.Column(db.TEXT, nullable=False)
     second_img_mimetype = db.Column(db.Text, nullable=False)
     third_img_mimetype = db.Column(db.Text, nullable=False)
     fourth_img_mimetype = db.Column(db.Text, nullable=False)
+    face_img_mimetype = db.Column(db.Text,  nullable=False)
 
     def __repr__(self) -> str:
         return f"{self.uid}"
@@ -64,11 +69,13 @@ def upload():
     patronymics = request.form["patronymics"]
     weight = request.form["weight"]
     flight = request.form["flight"]
+    city = request.form["city"]
 
     pic1 = request.files['pic1']
     pic2 = request.files['pic2']
     pic3 = request.files['pic3']
     pic4 = request.files['pic4']
+    face = request.files['face']
 
     if not pic1:
         return 'No pic1 uploaded!', 400
@@ -78,6 +85,8 @@ def upload():
         return 'No pic3 uploaded!', 400
     if not pic4:
         return 'No pic4 uploaded!', 400
+    if not face:
+        return 'No face uploaded!', 400
 
     filename1 = secure_filename(pic1.filename)
     mimetype1 = pic1.mimetype
@@ -91,6 +100,9 @@ def upload():
     filename4 = secure_filename(pic4.filename)
     mimetype4 = pic4.mimetype
 
+    filenameface = secure_filename(face.filename)
+    mimetypeface = face.mimetype
+
     if not filename1 or not mimetype1:
         return 'Bad upload!', 400
     if not filename2 or not mimetype2:
@@ -99,12 +111,14 @@ def upload():
         return 'Bad upload!', 400
     if not filename4 or not mimetype4:
         return 'Bad upload!', 400
+    if not filenameface or not mimetypeface:
+        return 'Bad upload!', 400
 
     rrandom = ''.join([random.choice(string.ascii_letters
                                      + string.digits) for n in range(16)])
 
-    img = SuitCase(first_img=pic1.read(), second_img=pic2.read(), third_img=pic3.read(), fourth_img=pic4.read(), first_img_name=filename1, first_img_mimetype=mimetype1, second_img_name=filename2,
-                   second_img_mimetype=mimetype2, third_img_name=filename3, third_img_mimetype=mimetype3, fourth_img_name=filename4, fourth_img_mimetype=mimetype4, status=1, surname=surname, name=name, flight=flight, uid=rrandom, patronymics=patronymics, weight=weight)
+    img = SuitCase(first_img=pic1.read(), second_img=pic2.read(), third_img=pic3.read(), fourth_img=pic4.read(), face_img=face.read(), first_img_name=filename1, face_img_name=filenameface, first_img_mimetype=mimetype1, second_img_name=filename2,
+                   second_img_mimetype=mimetype2, third_img_name=filename3, third_img_mimetype=mimetype3, fourth_img_name=filename4, fourth_img_mimetype=mimetype4, face_img_mimetype=mimetypeface, status=1, surname=surname, name=name, flight=flight, uid=rrandom, patronymics=patronymics, weight=weight, city=city)
     db.session.add(img)
     db.session.commit()
     print(rrandom)
@@ -125,6 +139,18 @@ def status(id, status):
             db.session.commit()
     return "write is done"
 
+@app.route('/status/<id>/<status>')
+def city(id, city):
+    m = SuitCase.query.all()
+    print(m)
+    for v in m:
+        print(v)
+        if str(v) == str(id):
+            db.session.execute(select(SuitCase).where(
+                SuitCase.uid == id)).scalar_one().city = city
+            db.session.flush()
+            db.session.commit()
+    return "write is done"
 
 @app.route("/getphoto/<int:num>/<id>")
 def getphoto(num, id):
@@ -139,6 +165,7 @@ def getphoto(num, id):
         case 2: return Response(data.second_img, mimetype=data.second_img_mimetype)
         case 3: return Response(data.third_img, mimetype=data.third_img_mimetype)
         case 4: return Response(data.fourth_img, mimetype=data.fourth_img_mimetype)
+        case 5: return Response(data.face_img, mimetype=data.face_img_mimetype)
 
 
 @app.route("/getdata/<id>")
@@ -153,6 +180,7 @@ def getdata(id):
         "weight": data.weight,
         "flight": data.flight,
         "status": data.status,
+        "city": data.city
     }
     db.session.flush()
     db.session.commit()

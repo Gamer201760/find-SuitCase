@@ -2,13 +2,15 @@ import requests
 import cv2 as cv
 import eel
 import serial
+import json
 import time
+print(json.load(open("settings.json", "r")))
 
 
 @eel.expose()
 def make_photo():
     key = 1
-    cap = cv.VideoCapture(1)
+    cap = cv.VideoCapture(0)
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
 
@@ -18,7 +20,7 @@ def make_photo():
         cv.imshow("Bag", frame)
 
         if k == ord('p'):
-            if key <= 4:
+            if key <= 5:
                 print(f"photo{key}")
                 cv.imwrite(f'photo/bag{key}.png', frame)
                 key += 1
@@ -38,15 +40,19 @@ def send(name, surname, flight, pat, weight):
         'pic1': ("bag1.png", open('./photo/bag1.png', 'rb'), 'image/png'),
         'pic2': ("bag2.png", open('./photo/bag2.png', 'rb'), 'image/png'),
         'pic3': ("bag3.png", open('./photo/bag3.png', 'rb'), 'image/png'),
-        'pic4': ("bag4.png", open('./photo/bag4.png', 'rb'), 'image/png')
+        'pic4': ("bag4.png", open('./photo/bag4.png', 'rb'), 'image/png'),
+        'face': ("bag5.png", open('./photo/bag5.png', 'rb'), 'image/png')
     }
+
+    city = json.load(open("settings.json", "r"))
 
     data = {
         "name": name,
         "surname": surname,
         "flight": flight,
         "patronymics": pat,
-        "weight": weight
+        "weight": weight,
+        "city": city["city"]
     }
 
     code = requests.post(
