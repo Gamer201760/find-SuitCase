@@ -27,7 +27,7 @@ class SuitCase(db.Model):
     name = db.Column(db.Text, nullable=False)
     patronymics = db.Column(db.Text, nullable=False)
     flight = db.Column(db.Text, nullable=False)
-    city = db.Column(db.Text, unique=True, nullable=False)
+    city = db.Column(db.Text, nullable=False)
 
     # img
     first_img = db.Column(db.TEXT,  nullable=False)

@@ -9,7 +9,7 @@ import time
 @eel.expose()
 def make_photo():
     key = 1
-    cap = cv.VideoCapture(1)
+    cap = cv.VideoCapture(2)
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
 
@@ -19,7 +19,7 @@ def make_photo():
         cv.imshow("Bag", frame)
 
         if k == ord('p'):
-            if key <= 5:
+            if key <= 4:
                 print(f"photo{key}")
                 cv.imwrite(f'photo/bag{key}.png', frame)
                 key += 1
@@ -29,7 +29,7 @@ def make_photo():
     cap.release()
     cv.destroyAllWindows()
     key = 1
-    cap = cv.VideoCapture(2)
+    cap = cv.VideoCapture(0)
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
 
@@ -76,7 +76,7 @@ def send(name, surname, flight, pat, weight):
         'https://find-suitcase.herokuapp.com/upload', files=files, data=data)
     id = code.text
     print(id)
-    ser = serial.Serial("com7", 9600, timeout=5)
+    ser = serial.Serial("com5", 9600, timeout=5)
     time.sleep(2)
     ser.setDTR(0)
     time.sleep(2)
