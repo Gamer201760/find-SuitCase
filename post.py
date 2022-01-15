@@ -4,13 +4,12 @@ import eel
 import serial
 import json
 import time
-print(json.load(open("settings.json", "r")))
 
 
 @eel.expose()
 def make_photo():
     key = 1
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(1)
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
 
@@ -26,6 +25,24 @@ def make_photo():
                 key += 1
             else:
                 break
+
+    cap.release()
+    cv.destroyAllWindows()
+    key = 1
+    cap = cv.VideoCapture(2)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
+
+    while True:
+        k = cv.waitKey(1)
+        value, frame = cap.read()
+        cv.imshow("Face", frame)
+
+        if k == ord('p'):
+            cv.imwrite(f'photo/Face.png', frame)
+            key += 1
+            break
+
     cap.release()
     cv.destroyAllWindows()
 
@@ -41,7 +58,7 @@ def send(name, surname, flight, pat, weight):
         'pic2': ("bag2.png", open('./photo/bag2.png', 'rb'), 'image/png'),
         'pic3': ("bag3.png", open('./photo/bag3.png', 'rb'), 'image/png'),
         'pic4': ("bag4.png", open('./photo/bag4.png', 'rb'), 'image/png'),
-        'face': ("bag5.png", open('./photo/bag5.png', 'rb'), 'image/png')
+        'face': ("face.png", open('./photo/face.png', 'rb'), 'image/png')
     }
 
     city = json.load(open("settings.json", "r"))

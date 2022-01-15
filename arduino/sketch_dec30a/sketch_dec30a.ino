@@ -17,6 +17,7 @@ const char* pat;
 float weight;
 int stat;
 const char* flight;
+const char* city;
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 MFRC522::StatusCode status;
@@ -30,10 +31,10 @@ ESP8266WebServer server(80);
 
 void handleRoot() {
 
-  server.send(200, "text/html", SendHTML(value, nam, surname, pat, weight, stat, flight)); //Send web page
+  server.send(200, "text/html", SendHTML(value, nam, surname, pat, weight, stat, flight, city)); //Send web page
 }
 
-String SendHTML(String id, String nam, String surname, String pat, float weight, int stat, String flight) {
+String SendHTML(String id, String nam, String surname, String pat, float weight, int stat, String flight, String city) {
 
   String ptr = "<!DOCTYPE html> <html>";
   ptr += "<head> <meta charset=\"UTF-8\"> <title>Find-SuitCase</title>";
@@ -56,9 +57,10 @@ String SendHTML(String id, String nam, String surname, String pat, float weight,
   ptr += "<p>Weight: " + String(weight) + "</p>";
   ptr += "<p>Status Code: " + String(stat); "+</p>";
   ptr += "<p>Flight: " + flight + "</p>";
+  ptr += "<p>City: " + city + "</p>";
 
   ptr += "</div>";
-  for (int i=1; i <=4; i++) {
+  for (int i=1; i <=5; i++) {
     String ipimg = ip + "getphoto/";
     Serial.println(i);
     ipimg += i;
@@ -125,6 +127,7 @@ void loop() {
     pat = "";
     weight = 0.0;
     stat = 0;
+    city = "";
     flight = "";
   }
   //Dump a byte array to Serial
@@ -167,6 +170,7 @@ void loop() {
   weight = jdata["weight"];
   flight = jdata["flight"];
   stat = jdata["status"];
+  city = jdata["city"];
 
   Serial.print("[INFO] Name: ");
   Serial.println(nam);
@@ -178,8 +182,11 @@ void loop() {
   Serial.println(weight);
   Serial.print("[INFO] Flight: ");
   Serial.println(flight);
+  Serial.print("[INFO] City: ");
+  Serial.println(city);
   Serial.print("[INFO] Status Code: ");
   Serial.println(stat);
+  
 
   Serial.print("[INFO] HttpCode: ");
   Serial.println(httpcode);
